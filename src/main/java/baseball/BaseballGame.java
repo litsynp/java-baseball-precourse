@@ -1,62 +1,25 @@
 package baseball;
 
-import camp.nextstep.edu.missionutils.Randoms;
-
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import static baseball.Constants.ANSWER_MAX_VALUE;
-import static baseball.Constants.ANSWER_MIN_VALUE;
-import static baseball.Constants.DIGIT_LENGTH;
+import java.util.List;
 
 public class BaseballGame {
 
-    private Digit[] answers = new Digit[DIGIT_LENGTH];
+    public static final int DIGIT_LENGTH = 3;
+    private final Digits answer;
 
-    private final String BALL_STRING = "볼";
-    private final String STRIKE_STRING = "스트라이크";
-    private final String NOTHING_STRING = "낫싱";
-    private final String ALL_STRIKES_STRING = DIGIT_LENGTH + "개의 숫자를 모두 맞히셨습니다! 게임 종료";
-
-    public BaseballGame() {
-        generateAnswers();
+    public BaseballGame(int digitSize) {
+        this.answer = Digits.ofRandomDigits(digitSize);
     }
 
-    public void startNewGame() {
-        generateAnswers();
-    }
-
-    private void generateAnswers() {
-        Set<Integer> uniqueDigits = new LinkedHashSet<>();
-        while (uniqueDigits.size() != 3) {
-            int random = Randoms.pickNumberInRange(ANSWER_MIN_VALUE, ANSWER_MAX_VALUE);
-            uniqueDigits.add(random);
-        }
-
-        answers = uniqueDigits.stream()
-                .mapToInt(Number::intValue)
-                .mapToObj(Digit::new)
-                .toArray(Digit[]::new);
-    }
-
-    public Digit[] createBaseballs(int[] ballNumbers) {
-        Digit[] digits = new Digit[DIGIT_LENGTH];
-        for (int i = 0; i < DIGIT_LENGTH; i++) {
-            digits[i] = new Digit(ballNumbers[i]);
-        }
-        return digits;
-    }
-
-    public GameResult compareResult(Digit[] digits) {
+    public GameResult compareResult(List<Digit> digits) {
         int balls = 0;
         int strikes = 0;
 
         for (int round = 0; round < DIGIT_LENGTH; round++) {
-            int position = Arrays.asList(answers).indexOf(digits[round]);
+            int curPos = answer.indexOf(digits.get(round));
 
-            boolean equalNumberExists = (position != -1);
-            boolean isEqualPosition = (round == position);
+            boolean equalNumberExists = (curPos != -1);
+            boolean isEqualPosition = (round == curPos);
 
             if (equalNumberExists && isEqualPosition) {
                 strikes += 1;
@@ -72,14 +35,14 @@ public class BaseballGame {
 
     public boolean announceResult(GameResult result) {
         if (result.isNothing()) {
-            System.out.println(NOTHING_STRING);
+            System.out.println("낫싱");
             return false;
         }
 
         System.out.println(createResultString(result));
 
-        if (result.isAllStrikes()) {
-            System.out.println(ALL_STRIKES_STRING);
+        if (result.isAllStrikes(DIGIT_LENGTH)) {
+            System.out.println(DIGIT_LENGTH + "개의 숫자를 모두 맞히셨습니다! 게임 종료");
             return true;
         }
 
@@ -92,7 +55,7 @@ public class BaseballGame {
         boolean hasStrikes = result.getStrikes() > 0;
 
         if (hasBalls) {
-            resultString += result.getBalls() + BALL_STRING;
+            resultString += result.getBalls() + "볼";
         }
 
         if (hasBalls && hasStrikes) {
@@ -100,7 +63,7 @@ public class BaseballGame {
         }
 
         if (hasStrikes) {
-            resultString += result.getStrikes() + STRIKE_STRING;
+            resultString += result.getStrikes() + "스트라이크";
         }
 
         return resultString;

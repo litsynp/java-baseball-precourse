@@ -1,7 +1,5 @@
 package baseball;
 
-import static baseball.Constants.DIGIT_LENGTH;
-
 public class GameResult {
 
     private int balls;
@@ -24,7 +22,7 @@ public class GameResult {
         return balls == 0 && strikes == 0;
     }
 
-    public boolean isAllStrikes() {
-        return strikes == DIGIT_LENGTH;
+    public boolean isAllStrikes(int digitSize) {
+        return strikes == digitSize;
     }
 }
